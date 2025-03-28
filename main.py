@@ -1,21 +1,23 @@
 import discord
 import os
-# intents are needed for teh client section
-# so here we add if this supposed to message join chat and more
+
 # Create intents
 intents = discord.Intents.default()
-intents.message_content = True  # Enable message content intent if needed
+intents.message_content = True
 
-# loading the .env token since there is a bug
+# Get the token directly from environment (GitHub will inject it)
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-# discord bots listen for event and then reacts to it
+# Check if token exists
+if TOKEN is None:
+    raise ValueError("DISCORD_TOKEN is not set! Please configure your GitHub Secrets properly.")
+
 client = discord.Client(intents=intents)
-#log in event
+
 @client.event
 async def on_ready():
     print('Bot logged in as {0.user}'.format(client))
-#on message even
+
 @client.event
 async def on_message(message):
     if message.author == client.user:

@@ -3,10 +3,10 @@ name: Run Discord Bot
 on:
   push:
     branches:
-      - master  # or any branch you want
+      - master
 
 jobs:
-  run-discord-bot:
+  run-bot:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,9 +16,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'  # change if you need another version
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install discord.py
 
       - name: Run the bot
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-        run: python main.py  # change to your actual .py filename
+        run: python main.py
