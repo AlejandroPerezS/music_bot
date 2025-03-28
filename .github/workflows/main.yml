@@ -3,22 +3,22 @@ name: Run Discord Bot
 on:
   push:
     branches:
-      - main
+      - master  # or any branch you want
 
 jobs:
-  run-bot:
+  run-discord-bot:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'  # change if you need another version
 
-    - name: Run the Discord Bot
-      env:
-        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-      run: python main.py
+      - name: Run the bot
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: python main.py  # change to your actual .py filename
