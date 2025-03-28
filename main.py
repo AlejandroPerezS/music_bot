@@ -1,6 +1,5 @@
 import discord
 import os
-from dotenv import load_dotenv
 # intents are needed for teh client section
 # so here we add if this supposed to message join chat and more
 # Create intents
@@ -8,8 +7,7 @@ intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent if needed
 
 # loading the .env token since there is a bug
-load_dotenv()
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("DISCORD_TOKEN")
 
 # discord bots listen for event and then reacts to it
 client = discord.Client(intents=intents)
