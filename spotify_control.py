@@ -28,7 +28,6 @@ SPOTIPY_REDIRECT_URI="http://127.0.0.1:8888/callback"
 scope = "user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played"
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
-
 # 🎵 Get the current device Spotify is playing on
 def get_device():
     devices = sp.devices()
