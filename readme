@@ -1,1 +1,6 @@
 xd
+
+Current requirement for the bot are:
+requests = 2.32.3
+spotipy = 2.25.1
+dotenv = 0.9.9
