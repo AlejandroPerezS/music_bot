@@ -5,3 +5,4 @@
 # Environment variable files
 *.env
 .cache
+/__pycache__
