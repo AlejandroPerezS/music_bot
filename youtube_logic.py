@@ -33,23 +33,27 @@ def search_youtube(query, youtube):
 def get_audio_url(url):
     try:
         ydl_opts = {
-            'format': 'bestaudio/best',  # Select best audio format
-            'quiet': True,  # Suppress logs
-            'outtmpl': '%(id)s.%(ext)s',  # Output template for downloaded file
-            'postprocessors': [{
-                'key': 'FFmpegAudioConvertor',  # Corrected to 'FFmpegAudioConvertor'
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
+            'format': 'bestaudio/best',
+            'quiet': True,
         }
 
         with ytdlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=False)
-            audio_url = info_dict['formats'][0]['url']
-            return audio_url
+
+            for fmt in info_dict['formats']:
+                # We want non-HLS audio-only streams
+                if (
+                    fmt.get('acodec') != 'none' and
+                    fmt.get('vcodec') == 'none' and
+                    not fmt['url'].endswith('.m3u8')
+                ):
+                    return fmt['url']
+
+            print("No valid direct audio stream found.")
     except Exception as e:
         print(f"Error extracting audio URL: {e}")
-        return None
+    return None
+
 
 # Function to play a song using the YouTube URL
 async def play_song(ctx, song_name):
@@ -64,6 +68,8 @@ async def play_song(ctx, song_name):
         await ctx.send("Error retrieving audio URL. Please try again later.")
         return
 
+    print(f"Attempting to play audio URL: {audio_url}")
+
     # Ensure the bot is connected to a voice channel
     if not ctx.voice_client:
         if ctx.author.voice:
@@ -75,12 +81,31 @@ async def play_song(ctx, song_name):
 
     voice_client = ctx.voice_client
 
-    # Play the audio in the voice channel
-    voice_client.play(discord.FFmpegPCMAudio(audio_url))
+    # Play the audio with FFmpeg
+    ffmpeg_options = {
+        'options': '-vn'
+    }
+
+    def after_playback(error):
+        if error:
+            print(f"Playback error: {error}")
+
+    voice_client.play(discord.FFmpegPCMAudio(audio_url, **ffmpeg_options), after=after_playback)
+
+    # Wait for audio to start (up to 5 seconds)
+    for _ in range(10):
+        if voice_client.is_playing():
+            break
+        await asyncio.sleep(0.5)
+
+    if not voice_client.is_playing():
+        await ctx.send("Something went wrong. The audio failed to start.")
+        await voice_client.disconnect()
+        return
 
     await ctx.send(f"Now playing: {song_name}")
 
-    # Wait for the song to finish playing before disconnecting
+    # Wait until it finishes
     while voice_client.is_playing():
         await asyncio.sleep(1)
 
